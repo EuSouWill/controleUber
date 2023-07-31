@@ -1,5 +1,19 @@
 let dailyProfits = [];
 
+document.addEventListener('DOMContentLoaded', () => {
+  const calculateAndSaveBtn = document.getElementById('calculateAndSaveBtn');
+  calculateAndSaveBtn.addEventListener('click', calculateAndSave);
+
+  const showAllBtn = document.getElementById('showAllBtn');
+  showAllBtn.addEventListener('click', showAllRecords);
+
+  const showSelectedDateBtn = document.getElementById('showSelectedDateBtn');
+  showSelectedDateBtn.addEventListener('click', showSelectedDateRecords);
+
+  // Exibir os registros ao carregar a página
+  displayResults();
+});
+
 function calculateAndSave() {
   const dateInput = document.getElementById('date');
   const fuelInput = document.getElementById('fuel');
@@ -19,14 +33,14 @@ function calculateAndSave() {
 
   const fuelCost = fuel;
   const dailyProfit = balance - fuelCost;
-  dailyProfits.push({ date, fuel, dailyProfit, distance });
 
-  // Salvar o lucro diário no LocalStorage
+  // Salvando os registros no LocalStorage
+  dailyProfits.push({ date, fuel, dailyProfit, distance });
   localStorage.setItem('dailyProfits', JSON.stringify(dailyProfits));
 
-  // Exibir o resultado na página
+  // Atualizar a exibição dos resultados na página
   displayResults();
-  
+
   // Limpar os campos para a próxima interação
   dateInput.value = '';
   fuelInput.value = '';
@@ -34,7 +48,7 @@ function calculateAndSave() {
   distanceInput.value = '';
 }
 
-function displayResults() {
+function showAllRecords() {
   const resultElement = document.getElementById('result');
 
   // Recuperar os dados do LocalStorage e exibir os resultados passados
@@ -57,7 +71,6 @@ function displayResults() {
     monthlyProfit += dailyProfit;
   }
 
-  // Exibir o acumulado do gasto de combustível no mês, a quantidade percorrida no mês e o lucro do mês
   allResultsHTML += `
     <p><strong>Acumulado do gasto de combustível no mês:</strong> R$ ${monthlyFuelCost.toFixed(2)}</p>
     <p><strong>Quantidade percorrida no mês:</strong> ${totalDistance.toFixed(2)} km</p>
@@ -65,6 +78,55 @@ function displayResults() {
   `;
 
   resultElement.innerHTML = allResultsHTML;
+}
+
+function showSelectedDateRecords() {
+  const selectedDateInput = document.getElementById('selectedDate');
+  const selectedDate = selectedDateInput.value;
+
+  if (!isValidDate(selectedDate)) {
+    alert('Por favor, selecione uma data válida.');
+    return;
+  }
+
+  const resultElement = document.getElementById('result');
+  const savedResults = JSON.parse(localStorage.getItem('dailyProfits')) || [];
+  let selectedDateRecordsHTML = '';
+  let selectedDateFuelCost = 0;
+  let selectedDateTotalDistance = 0;
+  let selectedDateProfit = 0;
+
+  for (const { date, fuel, dailyProfit, distance } of savedResults) {
+    if (date === selectedDate) {
+      selectedDateRecordsHTML += `
+        <p><strong>Data:</strong> ${date}</p>
+        <p><strong>Gasto com combustível:</strong> R$ ${fuel.toFixed(2)}</p>
+        <p><strong>Lucro do dia:</strong> R$ ${dailyProfit.toFixed(2)}</p>
+        <p><strong>Distância percorrida:</strong> ${distance.toFixed(2)} km</p>
+        <hr>
+      `;
+      selectedDateFuelCost += fuel;
+      selectedDateTotalDistance += distance;
+      selectedDateProfit += dailyProfit;
+    }
+  }
+
+  if (selectedDateRecordsHTML === '') {
+    selectedDateRecordsHTML = '<p>Nenhum registro encontrado para a data selecionada.</p>';
+  } else {
+    selectedDateRecordsHTML += `
+      <p><strong>Total do gasto de combustível:</strong> R$ ${selectedDateFuelCost.toFixed(2)}</p>
+      <p><strong>Total da distância percorrida:</strong> ${selectedDateTotalDistance.toFixed(2)} km</p>
+      <p><strong>Lucro do dia:</strong> R$ ${selectedDateProfit.toFixed(2)}</p>
+    `;
+  }
+
+  resultElement.innerHTML = selectedDateRecordsHTML;
+}
+
+function displayResults() {
+  // Chame a função para mostrar todos os registros
+  showAllRecords();
 }
 
 function isValidDate(date) {

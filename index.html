@@ -21,7 +21,11 @@
     <label for="distance">Quilômetros percorridos:</label>
     <input type="number" id="distance" step="0.01">
 
-    <button onclick="calculateAndSave()">Calcular e Salvar</button>
+    <button id="calculateAndSaveBtn">Calcular e Salvar</button>
+    <button id="showAllBtn">Mostrar Todos os Registros</button>
+    <label for="selectedDate">Escolha uma data:</label>
+    <input type="date" id="selectedDate">
+    <button id="showSelectedDateBtn">Mostrar Registros do Dia</button>
     <div id="result"></div>
   </div>
   <script src="script.js"></script>
